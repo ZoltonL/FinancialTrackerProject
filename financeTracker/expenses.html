@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ledger — Expenses</title>
+<link rel="stylesheet" href="shared.css" />
+<link rel="stylesheet" href="expenses.css" />
+</head>
+<body>
+
+<div id="app-shell">
+  <header class="topnav">
+    <div class="brand-inline">
+      <span class="mark">ZDN^2</span>
+    </div>
+    <nav class="pagenav">
+      <a class="pagenav-item" id="nav-menu" href="#">☰ Menu</a>
+      <a class="pagenav-item" id="nav-income" href="#">Income</a>
+      <a class="pagenav-item active" id="nav-expenses" href="#">Expenses</a>
+    </nav>
+    <div class="account-chip">
+      <span class="account-name" id="account-name-label"></span>
+      <button class="btn ghost small" id="logout-btn">Log Out</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <h1>Expenses</h1>
+        <p>Track what goes out — weekly, monthly, or yearly.</p>
+      </div>
+      <div class="balance-block">
+        <div class="balance-label">Total Balance</div>
+        <div class="balance-figure" id="balance-figure">$0.00</div>
+      </div>
+    </div>
+
+    <div id="view-root"></div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="shared.js"></script>
+<script src="expenses.js"></script>
+</body>
+</html>

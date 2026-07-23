@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ledger — Income</title>
+<link rel="stylesheet" href="shared.css" />
+<link rel="stylesheet" href="home.css" />
+</head>
+<body>
+
+<div id="app-shell">
+  <header class="topnav">
+    <div class="brand-inline">
+      <span class="mark">ZDN^2</span>
+    </div>
+    <nav class="pagenav">
+      <a class="pagenav-item" id="nav-menu" href="#">☰ Menu</a>
+      <a class="pagenav-item active" id="nav-income" href="#">Income</a>
+      <a class="pagenav-item" id="nav-expenses" href="#">Expenses</a>
+    </nav>
+    <div class="account-chip">
+      <span class="account-name" id="account-name-label"></span>
+      <button class="btn ghost small" id="logout-btn">Log Out</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <h1 id="view-title">Income</h1>
+        <p id="view-sub">Every dollar in, tracked in one place.</p>
+      </div>
+      <div class="balance-block">
+        <div class="balance-label">Total Balance</div>
+        <div class="balance-figure" id="balance-figure">$0.00</div>
+      </div>
+    </div>
+
+    <div id="view-root"></div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="shared.js"></script>
+<script src="home.js"></script>
+<script>
+  if (typeof Auth === 'undefined' || typeof Store === 'undefined' || typeof Bus === 'undefined') {
+    document.body.innerHTML =
+      '<div style="max-width:520px;margin:60px auto;padding:24px 28px;font-family:sans-serif;' +
+      'color:#ECE6D6;background:#162720;border:1px solid #B5594B;border-radius:6px;">' +
+      '<h2 style="margin-top:0;color:#E3B968;">Setup problem — shared.js didn\'t load</h2>' +
+      '<p>This page needs <code>shared.js</code>, <code>home.js</code>, and <code>home.css</code> to sit in the ' +
+      '<b>same folder</b> as <code>home.html</code>, with those exact file names.</p>' +
+      '<p>Re-download all files into one folder, then start from <code>login.html</code> in that folder.</p>' +
+      '</div>';
+  }
+</script>
+</body>
+</html>
