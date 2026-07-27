@@ -171,12 +171,103 @@ const Store = (() => {
       return transactions[idx];
     },
     remove(id){
+      const removed = transactions.find(t => t.id === id) || null;
       transactions = transactions.filter(t => t.id !== id);
       persist();
-      Bus.emit('store:changed', { action:'remove', id });
+      Bus.emit('store:changed', { action:'remove', id, record: removed });
     }
   };
 })();
+
+/* =========================================================
+   HISTORY: an append-only audit log of every income/expense
+   entered, altered, or deleted. This is intentionally NOT
+   editable or deletable through the app — entries are never
+   mutated once written, only ever appended.
+
+   It hooks into Store's existing 'store:changed' event, so
+   ANY current or future code path that goes through
+   Store.add/update/remove is logged automatically — nobody
+   has to remember to call History themselves.
+   ========================================================= */
+const History = (() => {
+  let historyKey = null;
+  let entries = [];
+  let loaded = false;
+  let writeChain = Promise.resolve();
+  let loadToken = 0;
+
+  function keyFor(username){ return 'ledger:history:' + username; }
+
+  async function loadForAccount(username){
+    await writeChain;
+    const myToken = ++loadToken;
+    historyKey = keyFor(username);
+    entries = [];
+    loaded = false;
+    try{
+      const res = await Persistence.get(historyKey);
+      if(myToken !== loadToken) return;
+      entries = res && res.value ? JSON.parse(res.value) : [];
+    }catch(e){
+      if(myToken !== loadToken) return;
+      entries = [];
+    }
+    if(myToken !== loadToken) return;
+    loaded = true;
+    Bus.emit('history:loaded', entries);
+  }
+
+  function unload(){
+    historyKey = null;
+    entries = [];
+    loaded = false;
+  }
+
+  function persist(){
+    writeChain = writeChain.then(async () => {
+      if(!historyKey) return;
+      const key = historyKey;
+      const snapshot = JSON.stringify(entries);
+      try{
+        await Persistence.set(key, snapshot);
+      }catch(e){
+        console.error('Could not save history', e);
+      }
+    });
+    return writeChain;
+  }
+
+  function hid(){ return 'h_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,7); }
+
+  function append(action, record){
+    if(!historyKey || !record) return; // no account loaded, or nothing to log
+    entries.push({
+      id: hid(),
+      at: new Date().toISOString(),
+      action, // 'add' | 'update' | 'remove'
+      txType: record.type, // 'income' | 'expense'
+      record: Object.assign({}, record) // frozen snapshot at the moment of the action
+    });
+    persist();
+    Bus.emit('history:changed');
+  }
+
+  return {
+    isLoaded: () => loaded,
+    flush: () => writeChain,
+    loadForAccount,
+    unload,
+    all: () => entries.slice(), // a copy — nothing returned here should ever be mutated in place
+    append
+  };
+})();
+
+// Auto-log every Store change, in the order they actually happened.
+Bus.on('store:changed', (payload) => {
+  if(!payload) return;
+  History.append(payload.action, payload.record);
+});
 
 /* =========================================================
    AUTH: simple account registry, separate from Store.

@@ -25,7 +25,7 @@ function setLoginMode(mode){
 }
 
 function goToHome(username){
-  window.location.href = 'home.html?user=' + encodeURIComponent(username);
+  window.location.href = 'menu.html?user=' + encodeURIComponent(username);
 }
 
 function handleLoginSubmit(){

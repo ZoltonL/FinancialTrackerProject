@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ledger — History</title>
+<link rel="stylesheet" href="shared.css" />
+<link rel="stylesheet" href="history.css" />
+</head>
+<body>
+
+<div id="app-shell">
+  <header class="topnav">
+    <div class="brand-inline">
+      <span class="mark">ZDN^2</span>
+    </div>
+    <nav class="pagenav">
+      <a class="pagenav-item" id="nav-menu" href="#">☰ Menu</a>
+      <a class="pagenav-item" id="nav-income" href="#">Income</a>
+      <a class="pagenav-item" id="nav-expenses" href="#">Expenses</a>
+      <a class="pagenav-item active" id="nav-history" href="#">History</a>
+    </nav>
+    <div class="account-chip">
+      <span class="account-name" id="account-name-label"></span>
+      <button class="btn ghost small" id="logout-btn">Log Out</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="topbar">
+      <h1>Financial History</h1>
+      <p>An untouchable record of every income and expense entered, altered, or deleted — nothing here can be edited or removed.</p>
+    </div>
+
+    <div id="view-root"></div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="shared.js"></script>
+<script src="history.js"></script>
+</body>
+</html>

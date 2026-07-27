@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ledger — Menu</title>
+<link rel="stylesheet" href="shared.css" />
+<link rel="stylesheet" href="menu.css" />
+</head>
+<body>
+
+<div id="app-shell">
+  <header class="topnav">
+    <div class="brand-inline">
+      <span class="mark">ZDN^2</span>
+    </div>
+    <nav class="pagenav">
+      <a class="pagenav-item active" id="nav-menu" href="#">☰ Menu</a>
+      <a class="pagenav-item" id="nav-income" href="#">Income</a>
+      <a class="pagenav-item" id="nav-expenses" href="#">Expenses</a>
+      <a class="pagenav-item" id="nav-history" href="#">History</a>
+    </nav>
+    <div class="account-chip">
+      <span class="account-name" id="account-name-label"></span>
+      <button class="btn ghost small" id="logout-btn">Log Out</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="menu-heading">
+      <h1>What would you like to do?</h1>
+      <p>Income and expenses both update the same total balance.</p>
+    </div>
+    <div class="menu-options">
+      <a class="menu-card" href="#" id="link-income">
+        <div class="icon">💰</div>
+        <div class="title">Income</div>
+        <div class="desc">Log a new paycheck, gift, refund, or other money coming in.</div>
+        <div class="figure good" id="income-figure">—</div>
+      </a>
+      <a class="menu-card" href="#" id="link-expenses">
+        <div class="icon">🧾</div>
+        <div class="title">Expenses</div>
+        <div class="desc">Add or review your weekly, monthly, and yearly expenses.</div>
+        <div class="figure bad" id="expenses-figure">—</div>
+      </a>
+      <a class="menu-card" href="#" id="link-history">
+        <div class="icon">📜</div>
+        <div class="title">History</div>
+        <div class="desc">An untouchable record of every entry added, edited, or deleted.</div>
+        <div class="figure neutral" id="history-figure">—</div>
+      </a>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="shared.js"></script>
+<script src="menu.js"></script>
+</body>
+</html>

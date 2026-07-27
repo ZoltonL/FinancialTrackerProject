@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ledger — Sign In</title>
+<link rel="stylesheet" href="shared.css" />
+<link rel="stylesheet" href="login.css" />
+</head>
+<body>
+
+<div class="login-screen" id="login-screen">
+  <div class="login-card">
+    <div class="brand">
+      <div class="mark">ZDN^2</div>
+      <div class="sub">Personal Finance</div>
+    </div>
+    <div class="login-tabs">
+      <button type="button" class="login-tab active" data-tab="signin" id="tab-signin">Sign In</button>
+      <button type="button" class="login-tab" data-tab="create" id="tab-create">Create Account</button>
+    </div>
+    <div class="field">
+      <label>Username</label>
+      <input type="text" id="login-username" placeholder="e.g. John" autocomplete="username" />
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" />
+    </div>
+    <div class="login-error" id="login-error"></div>
+    <div class="login-error" id="storage-warning" style="display:none;">
+      ⚠ Saving isn't working in this browser/page right now — accounts and entries will disappear when you close this tab.
+    </div>
+    <button type="button" class="btn" id="login-submit" style="width:100%">Sign In</button>
+    <div class="login-note">
+      Each account keeps its own balance and ledger — one account never sees another's entries.
+      This is stored to your Claude account, not a secure authentication system, so don't reuse a real password here.
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="shared.js"></script>
+<script src="login.js"></script>
+<script>
+  if (typeof Auth === 'undefined' || typeof Store === 'undefined' || typeof Bus === 'undefined') {
+    document.body.innerHTML =
+      '<div style="max-width:520px;margin:60px auto;padding:24px 28px;font-family:sans-serif;' +
+      'color:#ECE6D6;background:#162720;border:1px solid #B5594B;border-radius:6px;">' +
+      '<h2 style="margin-top:0;color:#E3B968;">Setup problem — shared.js didn\'t load</h2>' +
+      '<p>This page needs <code>shared.js</code>, <code>login.js</code>, and <code>login.css</code> to sit in the ' +
+      '<b>same folder</b> as <code>login.html</code>, with those exact file names.</p>' +
+      '<p>You\'ll also need <code>home.html</code>, <code>home.js</code>, and <code>home.css</code> in that same folder ' +
+      'for sign-in to work.</p>' +
+      '<p>Re-download all 8 files into one folder, then open <code>login.html</code> from there.</p>' +
+      '</div>';
+  }
+</script>
+</body>
+</html>
