@@ -12,6 +12,8 @@
 
 const INCOME_CATEGORIES = ['Salary', 'Freelance', 'Refund', 'Gift', 'Investment', 'Other'];
 
+let editingId = null; // id of the income entry currently being edited, or null
+
 function renderBalance(){
   const total = Store.all().reduce((sum, t) => sum + signedAmount(t), 0);
   document.getElementById('balance-figure').textContent = fmtMoney(total);
@@ -28,6 +30,11 @@ function renderIncome(){
   entries.forEach(t => { bySource[t.source] = (bySource[t.source]||0) + Number(t.amount||0); });
   const topSource = Object.entries(bySource).sort((a,b) => b[1]-a[1])[0];
 
+  // If we're editing an entry that's since been deleted out from under us
+  // (e.g. from another tab), fall back to "add" mode instead of erroring.
+  const editingEntry = editingId ? entries.find(t => t.id === editingId) : null;
+  if(editingId && !editingEntry) editingId = null;
+
   root.innerHTML = `
     <div class="cards">
       <div class="card"><div class="k">Total Income</div><div class="v good">${fmtMoney(total)}</div></div>
@@ -38,32 +45,33 @@ function renderIncome(){
 
     <div class="panel">
       <div class="panel-head">
-        <h2>Add Income</h2>
+        <h2>${editingEntry ? 'Edit Income' : 'Add Income'}</h2>
+        ${editingEntry ? '<button class="btn ghost small" id="cancel-edit-btn">Cancel</button>' : ''}
       </div>
       <div class="form-grid" id="income-form">
         <div class="field">
           <label>Amount</label>
-          <input type="number" step="0.01" min="0" id="f-amount" placeholder="0.00" />
+          <input type="number" step="0.01" min="0" id="f-amount" placeholder="0.00" value="${editingEntry ? editingEntry.amount : ''}" />
         </div>
         <div class="field">
           <label>Source</label>
-          <input type="text" id="f-source" placeholder="e.g. Neumont Payroll" />
+          <input type="text" id="f-source" placeholder="e.g. Neumont Payroll" value="${editingEntry ? editingEntry.source : ''}" />
         </div>
         <div class="field">
           <label>Category</label>
           <select id="f-category">
-            ${INCOME_CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('')}
+            ${INCOME_CATEGORIES.map(c => `<option value="${c}" ${editingEntry && editingEntry.category===c ? 'selected' : ''}>${c}</option>`).join('')}
           </select>
         </div>
         <div class="field">
           <label>Date</label>
-          <input type="date" id="f-date" value="${new Date().toISOString().slice(0,10)}" />
+          <input type="date" id="f-date" value="${editingEntry ? editingEntry.date : new Date().toISOString().slice(0,10)}" />
         </div>
         <div class="field">
           <label>Note (optional)</label>
-          <input type="text" id="f-note" placeholder="Add a detail..." />
+          <input type="text" id="f-note" placeholder="Add a detail..." value="${editingEntry ? (editingEntry.note || '') : ''}" />
         </div>
-        <button class="btn" type="button" id="add-income-btn">Add Entry</button>
+        <button class="btn" type="button" id="add-income-btn">${editingEntry ? 'Save Changes' : 'Add Entry'}</button>
       </div>
     </div>
 
@@ -122,6 +130,7 @@ function renderIncome(){
         <td class="running">${fmtMoney(balanceAtId[t.id])}</td>
         <td>
           <div class="row-actions">
+            <button class="icon-btn" data-action="edit" data-id="${t.id}" title="Edit">✎</button>
             <button class="icon-btn" data-action="delete" data-id="${t.id}" title="Delete">✕</button>
           </div>
         </td>
@@ -130,10 +139,26 @@ function renderIncome(){
     });
 
     tbody.addEventListener('click', (e) => {
-      const btn = e.target.closest('[data-action="delete"]');
-      if(!btn) return;
-      Store.remove(btn.dataset.id);
-      toast('Entry removed');
+      const editBtn = e.target.closest('[data-action="edit"]');
+      if(editBtn){
+        editingId = editBtn.dataset.id;
+        renderIncome();
+        return;
+      }
+      const delBtn = e.target.closest('[data-action="delete"]');
+      if(delBtn){
+        if(editingId === delBtn.dataset.id) editingId = null;
+        Store.remove(delBtn.dataset.id);
+        toast('Entry removed');
+      }
+    });
+  }
+
+  const cancelBtn = root.querySelector('#cancel-edit-btn');
+  if(cancelBtn){
+    cancelBtn.addEventListener('click', () => {
+      editingId = null;
+      renderIncome();
     });
   }
 
@@ -162,15 +187,24 @@ function renderIncome(){
       return;
     }
 
-    Store.add({
+    const payload = {
       type: 'income',
       amount: amount,
       source: source,
       category: categoryEl.value,
       date: dateEl.value,
       note: (noteEl.value || '').trim()
-    });
-    toast('Income added');
+    };
+
+    if(editingEntry){
+      const id = editingEntry.id;
+      editingId = null;
+      Store.update(id, payload);
+      toast('Income updated');
+    } else {
+      Store.add(payload);
+      toast('Income added');
+    }
   }
 
   root.querySelector('#add-income-btn').addEventListener('click', handleAddIncome);
@@ -211,8 +245,9 @@ async function logout(){
   const logoutBtn = document.getElementById('logout-btn');
   logoutBtn.disabled = true;
   logoutBtn.textContent = 'Saving…';
-  await Store.flush(); // make sure the last change is actually written before we leave
+  await Promise.all([Store.flush(), History.flush()]); // make sure the last change is actually written before we leave
   Store.unload();
+  History.unload();
   window.location.href = 'login.html';
 }
 
@@ -237,8 +272,10 @@ async function boot(){
   const qs = '?user=' + encodeURIComponent(username);
   document.getElementById('nav-menu').href = 'menu.html' + qs;
   document.getElementById('nav-expenses').href = 'expenses.html' + qs;
+  document.getElementById('nav-history').href = 'history.html' + qs;
 
   await Store.loadForAccount(username);
+  await History.loadForAccount(username);
   renderIncome();
   renderBalance();
 }

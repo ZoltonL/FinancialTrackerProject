@@ -18,6 +18,7 @@ const FREQUENCIES = [
 ];
 
 let freqFilter = 'all'; // 'all' | 'weekly' | 'monthly' | 'yearly'
+let editingId = null; // id of the expense currently being edited, or null
 
 // Converts any frequency to a monthly-equivalent figure, so weekly and
 // yearly expenses can be compared/summed on the same footing.
@@ -52,6 +53,9 @@ function renderExpenses(){
     .slice()
     .sort((a,b) => a.date < b.date ? 1 : -1);
 
+  const editingEntry = editingId ? all.find(t => t.id === editingId) : null;
+  if(editingId && !editingEntry) editingId = null;
+
   root.innerHTML = `
     <div class="cards">
       <div class="card"><div class="k">Weekly Total</div><div class="v bad">${fmtMoney(totalsByFreq.weekly)}</div></div>
@@ -61,33 +65,36 @@ function renderExpenses(){
     </div>
 
     <div class="panel">
-      <div class="panel-head"><h2>Add Expense</h2></div>
+      <div class="panel-head">
+        <h2>${editingEntry ? 'Edit Expense' : 'Add Expense'}</h2>
+        ${editingEntry ? '<button class="btn ghost small" id="cancel-edit-btn">Cancel</button>' : ''}
+      </div>
       <div class="form-grid" id="expense-form">
         <div class="field">
           <label>Amount</label>
-          <input type="number" step="0.01" min="0" id="f-amount" placeholder="0.00" />
+          <input type="number" step="0.01" min="0" id="f-amount" placeholder="0.00" value="${editingEntry ? editingEntry.amount : ''}" />
         </div>
         <div class="field">
           <label>Description</label>
-          <input type="text" id="f-desc" placeholder="e.g. Rent" />
+          <input type="text" id="f-desc" placeholder="e.g. Rent" value="${editingEntry ? editingEntry.description : ''}" />
         </div>
         <div class="field">
           <label>Category</label>
           <select id="f-category">
-            ${EXPENSE_CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('')}
+            ${EXPENSE_CATEGORIES.map(c => `<option value="${c}" ${editingEntry && editingEntry.category===c ? 'selected' : ''}>${c}</option>`).join('')}
           </select>
         </div>
         <div class="field">
           <label>Frequency</label>
           <select id="f-frequency">
-            ${FREQUENCIES.map(f => `<option value="${f.id}">${f.label}</option>`).join('')}
+            ${FREQUENCIES.map(f => `<option value="${f.id}" ${editingEntry && editingEntry.frequency===f.id ? 'selected' : ''}>${f.label}</option>`).join('')}
           </select>
         </div>
         <div class="field">
           <label>Date</label>
-          <input type="date" id="f-date" value="${new Date().toISOString().slice(0,10)}" />
+          <input type="date" id="f-date" value="${editingEntry ? editingEntry.date : new Date().toISOString().slice(0,10)}" />
         </div>
-        <button class="btn" type="button" id="add-expense-btn">Add Expense</button>
+        <button class="btn" type="button" id="add-expense-btn">${editingEntry ? 'Save Changes' : 'Add Expense'}</button>
       </div>
     </div>
 
@@ -142,6 +149,7 @@ function renderExpenses(){
         <td class="equiv">${fmtMoney(monthlyEquivalent(t))}</td>
         <td>
           <div class="row-actions">
+            <button class="icon-btn" data-action="edit" data-id="${t.id}" title="Edit">✎</button>
             <button class="icon-btn" data-action="delete" data-id="${t.id}" title="Delete">✕</button>
           </div>
         </td>
@@ -149,12 +157,28 @@ function renderExpenses(){
       tbody.appendChild(tr);
     });
     tbody.addEventListener('click', (e) => {
-      const btn = e.target.closest('[data-action="delete"]');
-      if(!btn) return;
-      Store.remove(btn.dataset.id);
-      toast('Expense removed');
+      const editBtn = e.target.closest('[data-action="edit"]');
+      if(editBtn){
+        editingId = editBtn.dataset.id;
+        renderExpenses();
+        return;
+      }
+      const delBtn = e.target.closest('[data-action="delete"]');
+      if(delBtn){
+        if(editingId === delBtn.dataset.id) editingId = null;
+        Store.remove(delBtn.dataset.id);
+        toast('Expense removed');
+        renderExpenses();
+        renderBalance();
+      }
+    });
+  }
+
+  const cancelBtn = root.querySelector('#cancel-edit-btn');
+  if(cancelBtn){
+    cancelBtn.addEventListener('click', () => {
+      editingId = null;
       renderExpenses();
-      renderBalance();
     });
   }
 
@@ -190,15 +214,24 @@ function renderExpenses(){
       return;
     }
 
-    Store.add({
+    const payload = {
       type: 'expense',
       amount: amount,
       description: description,
       category: categoryEl.value,
       frequency: frequencyEl.value,
       date: dateEl.value
-    });
-    toast('Expense added');
+    };
+
+    if(editingEntry){
+      const id = editingEntry.id;
+      editingId = null;
+      Store.update(id, payload);
+      toast('Expense updated');
+    } else {
+      Store.add(payload);
+      toast('Expense added');
+    }
     renderExpenses();
     renderBalance();
   }
@@ -226,8 +259,9 @@ async function logout(){
   const logoutBtn = document.getElementById('logout-btn');
   logoutBtn.disabled = true;
   logoutBtn.textContent = 'Saving…';
-  await Store.flush();
+  await Promise.all([Store.flush(), History.flush()]);
   Store.unload();
+  History.unload();
   window.location.href = 'login.html';
 }
 
@@ -251,8 +285,10 @@ async function boot(){
   const qs = '?user=' + encodeURIComponent(username);
   document.getElementById('nav-menu').href = 'menu.html' + qs;
   document.getElementById('nav-income').href = 'home.html' + qs;
+  document.getElementById('nav-history').href = 'history.html' + qs;
 
   await Store.loadForAccount(username);
+  await History.loadForAccount(username);
   renderExpenses();
   renderBalance();
 }

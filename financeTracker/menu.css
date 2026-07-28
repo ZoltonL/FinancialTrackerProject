@@ -91,12 +91,13 @@
 
 .menu-options{
   display:grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
   width: 100%;
-  max-width: 640px;
+  max-width: 860px;
 }
-@media (max-width: 640px){ .menu-options{ grid-template-columns: 1fr; } }
+@media (max-width: 860px){ .menu-options{ grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px){ .menu-options{ grid-template-columns: 1fr; } }
 
 .menu-card{
   display:flex;
@@ -139,3 +140,4 @@
 }
 .menu-card .figure.good{ color: var(--good); }
 .menu-card .figure.bad{ color: var(--danger); }
+.menu-card .figure.neutral{ color: var(--ink-dim); }
