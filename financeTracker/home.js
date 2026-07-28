@@ -272,6 +272,7 @@ async function boot(){
   const qs = '?user=' + encodeURIComponent(username);
   document.getElementById('nav-menu').href = 'menu.html' + qs;
   document.getElementById('nav-expenses').href = 'expenses.html' + qs;
+  document.getElementById('nav-goals').href = 'goals.html' + qs;
   document.getElementById('nav-history').href = 'history.html' + qs;
 
   await Store.loadForAccount(username);

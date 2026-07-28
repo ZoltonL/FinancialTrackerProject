@@ -11,13 +11,19 @@
 let actionFilter = 'all'; // 'all' | 'add' | 'update' | 'remove'
 let typeFilter = 'all';   // 'all' | 'income' | 'expense'
 
-const ACTION_LABELS = { add: 'Entered', update: 'Altered', remove: 'Deleted' };
-const ACTION_CLASSES = { add: 'action-add', update: 'action-update', remove: 'action-remove' };
+const ACTION_LABELS = { add: 'Entered', update: 'Altered', remove: 'Deleted', achieved: 'Achieved' };
+const ACTION_CLASSES = { add: 'action-add', update: 'action-update', remove: 'action-remove', achieved: 'action-achieved' };
 
 function describeRecord(record){
   if(!record) return '—';
   if(record.type === 'income'){
     return record.source || '—';
+  }
+  if(record.type === 'goal'){
+    return record.name || '—';
+  }
+  if(record.type === 'contribution'){
+    return record.goalName ? `Contribution → ${record.goalName}` : 'Goal contribution';
   }
   return record.description || '—';
 }
@@ -67,6 +73,8 @@ function renderHistory(){
             <button class="filter-tab ${typeFilter==='all'?'active':''}" data-kind="type" data-val="all">All</button>
             <button class="filter-tab ${typeFilter==='income'?'active':''}" data-kind="type" data-val="income">Income</button>
             <button class="filter-tab ${typeFilter==='expense'?'active':''}" data-kind="type" data-val="expense">Expenses</button>
+            <button class="filter-tab ${typeFilter==='goal'?'active':''}" data-kind="type" data-val="goal">Goals</button>
+            <button class="filter-tab ${typeFilter==='contribution'?'active':''}" data-kind="type" data-val="contribution">Contributions</button>
           </div>
         </div>
       </div>
@@ -90,16 +98,37 @@ function renderHistory(){
     const tbody = root.querySelector('#history-body');
     visible.forEach(e => {
       const r = e.record || {};
-      const amountClass = e.txType === 'income' ? 'income' : 'expense';
-      const sign = e.txType === 'income' ? '+' : '-';
+      let amountClass, sign, amountValue, categoryCell, typeBadgeClass, typeLabel;
+      if(e.txType === 'goal'){
+        amountClass = 'goal';
+        sign = '';
+        amountValue = Number(r.targetAmount) || 0;
+        categoryCell = (r.startDate && r.endDate) ? `${fmtDate(r.startDate)} → ${fmtDate(r.endDate)}` : '—';
+        typeBadgeClass = 'type-goal';
+        typeLabel = 'Goal';
+      } else if(e.txType === 'contribution'){
+        amountClass = 'expense';
+        sign = '-';
+        amountValue = Number(r.amount) || 0;
+        categoryCell = '—';
+        typeBadgeClass = 'type-contribution';
+        typeLabel = 'Contribution';
+      } else {
+        amountClass = e.txType === 'income' ? 'income' : 'expense';
+        sign = e.txType === 'income' ? '+' : '-';
+        amountValue = Number(r.amount) || 0;
+        categoryCell = r.category || '—';
+        typeBadgeClass = e.txType === 'income' ? 'type-income' : 'type-expense';
+        typeLabel = e.txType === 'income' ? 'Income' : 'Expense';
+      }
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td class="date">${fmtWhen(e.at)}</td>
         <td><span class="pill ${ACTION_CLASSES[e.action] || ''}">${ACTION_LABELS[e.action] || e.action}</span></td>
-        <td><span class="pill ${e.txType === 'income' ? 'type-income' : 'type-expense'}">${e.txType === 'income' ? 'Income' : 'Expense'}</span></td>
+        <td><span class="pill ${typeBadgeClass}">${typeLabel}</span></td>
         <td>${describeRecord(r)}${r.frequency ? ` <span style="color:var(--ink-faint)">(${r.frequency})</span>` : ''}</td>
-        <td>${r.category || '—'}</td>
-        <td class="amount ${amountClass}">${sign}${fmtMoney(Number(r.amount) || 0)}</td>
+        <td>${categoryCell}</td>
+        <td class="amount ${amountClass}">${sign}${fmtMoney(amountValue)}</td>
       `;
       tbody.appendChild(tr);
     });
@@ -156,6 +185,7 @@ async function boot(){
   document.getElementById('nav-menu').href = 'menu.html' + qs;
   document.getElementById('nav-income').href = 'home.html' + qs;
   document.getElementById('nav-expenses').href = 'expenses.html' + qs;
+  document.getElementById('nav-goals').href = 'goals.html' + qs;
 
   await History.loadForAccount(username);
   renderHistory();

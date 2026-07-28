@@ -186,6 +186,7 @@
 }
 .ledger td.amount.income{ color: var(--good); }
 .ledger td.amount.expense{ color: var(--danger); }
+.ledger td.amount.goal{ color: var(--brass-bright); }
 
 .pill{
   display:inline-block;
@@ -198,8 +199,11 @@
 .pill.action-add{ border-color: var(--good); color: var(--good); }
 .pill.action-update{ border-color: var(--brass-dim); color: var(--brass-bright); }
 .pill.action-remove{ border-color: var(--danger); color: var(--danger); }
+.pill.action-achieved{ border-color: var(--good); color: var(--good); background: rgba(127,165,126,0.12); }
 .pill.type-income{ border-color: var(--good); color: var(--good); }
 .pill.type-expense{ border-color: var(--danger); color: var(--danger); }
+.pill.type-goal{ border-color: var(--brass-dim); color: var(--brass-bright); }
+.pill.type-contribution{ border-color: var(--sage); color: var(--sage); }
 
 .empty{
   padding: 40px 18px;

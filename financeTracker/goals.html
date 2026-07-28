@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Ledger — Expenses</title>
+<title>Ledger — Goals</title>
 <link rel="stylesheet" href="shared.css" />
-<link rel="stylesheet" href="expenses.css" />
+<link rel="stylesheet" href="goals.css" />
 </head>
 <body>
 
@@ -17,8 +17,8 @@
     <nav class="pagenav">
       <a class="pagenav-item" id="nav-menu" href="#">☰ Menu</a>
       <a class="pagenav-item" id="nav-income" href="#">Income</a>
-      <a class="pagenav-item active" id="nav-expenses" href="#">Expenses</a>
-      <a class="pagenav-item" id="nav-goals" href="#">Goals</a>
+      <a class="pagenav-item" id="nav-expenses" href="#">Expenses</a>
+      <a class="pagenav-item active" id="nav-goals" href="#">Goals</a>
       <a class="pagenav-item" id="nav-history" href="#">History</a>
     </nav>
     <div class="account-chip">
@@ -29,14 +29,8 @@
 
   <main class="main">
     <div class="topbar">
-      <div>
-        <h1>Expenses</h1>
-        <p>Track what goes out — weekly, monthly, or yearly.</p>
-      </div>
-      <div class="balance-block">
-        <div class="balance-label">Total Balance</div>
-        <div class="balance-figure" id="balance-figure">$0.00</div>
-      </div>
+      <h1>Goals</h1>
+      <p>Set a savings target with a deadline, and track how close you are.</p>
     </div>
 
     <div id="view-root"></div>
@@ -46,6 +40,6 @@
 <div class="toast" id="toast"></div>
 
 <script src="shared.js"></script>
-<script src="expenses.js"></script>
+<script src="goals.js"></script>
 </body>
 </html>

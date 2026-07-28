@@ -1,4 +1,4 @@
-/* ---------- top nav (matches home.css) ---------- */
+/* ---------- top nav (matches home.css / expenses.css / menu.css / history.css) ---------- */
 .topnav{
   display:flex;
   align-items:center;
@@ -66,14 +66,7 @@
 .main{ padding: 28px 34px 60px; max-width: 1100px; margin: 0 auto; }
 @media (max-width: 600px){ .main{ padding: 20px 16px 48px; } }
 
-.topbar{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-end;
-  gap: 20px;
-  flex-wrap: wrap;
-  margin-bottom: 26px;
-}
+.topbar{ margin-bottom: 26px; }
 .topbar h1{
   font-family:'Fraunces', serif;
   font-weight: 500;
@@ -85,29 +78,14 @@
   color: var(--ink-dim);
   font-size: 13.5px;
 }
-.balance-block{ text-align:right; }
-.balance-label{
-  font-size: 11px;
-  letter-spacing: 1.4px;
-  text-transform: uppercase;
-  color: var(--ink-faint);
-}
-.balance-figure{
-  font-family:'IBM Plex Mono', monospace;
-  font-weight: 600;
-  font-size: 34px;
-  color: var(--brass-bright);
-  font-variant-numeric: tabular-nums;
-}
 
 .cards{
   display:grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 12px;
   margin-bottom: 26px;
 }
-@media (max-width: 900px){ .cards{ grid-template-columns: repeat(3,1fr); } }
-@media (max-width: 600px){ .cards{ grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 760px){ .cards{ grid-template-columns: repeat(2,1fr); } }
 .card{
   background: var(--surface);
   border: 1px solid var(--rule);
@@ -127,8 +105,8 @@
   font-variant-numeric: tabular-nums;
   color: var(--ink);
 }
-.card .v.bad{ color: var(--danger); }
 
+/* ---------- panel / form ---------- */
 .panel{
   background: var(--surface);
   border: 1px solid var(--rule);
@@ -142,6 +120,8 @@
   justify-content:space-between;
   padding: 14px 18px;
   border-bottom: 1px solid var(--rule);
+  gap: 14px;
+  flex-wrap: wrap;
 }
 .panel-head h2{
   font-family:'Fraunces', serif;
@@ -152,21 +132,16 @@
 
 .form-grid{
   display:grid;
-  grid-template-columns: 1.1fr 1fr 1fr 1fr 1.2fr auto;
+  grid-template-columns: 1.4fr 1fr 1fr 1fr auto;
   gap: 10px;
   padding: 16px 18px;
   align-items:end;
 }
 @media (max-width: 900px){ .form-grid{ grid-template-columns: 1fr 1fr; } }
 
-/* ---------- frequency filter tabs ---------- */
-.freq-tabs{
-  display:flex;
-  gap: 6px;
-  padding: 4px;
-}
-.freq-tab{
-  padding: 6px 14px;
+.filter-row{ display:flex; gap: 6px; flex-wrap: wrap; }
+.filter-tab{
+  padding: 6px 12px;
   border-radius: 20px;
   border: 1px solid var(--rule);
   background: transparent;
@@ -175,71 +150,11 @@
   font-size: 12px;
   cursor: pointer;
 }
-.freq-tab.active{
+.filter-tab.active{
   border-color: var(--brass-dim);
   color: var(--brass-bright);
   background: var(--surface-2);
 }
-
-.ledger{ width: 100%; border-collapse: collapse; }
-.ledger thead th{
-  text-align: left;
-  font-size: 10.5px;
-  letter-spacing: 1.1px;
-  text-transform: uppercase;
-  color: var(--ink-faint);
-  font-weight: 600;
-  padding: 10px 18px;
-  border-bottom: 1px solid var(--rule);
-}
-.ledger tbody tr{
-  border-bottom: 1px dashed var(--rule-soft);
-  transition: background .1s ease;
-}
-.ledger tbody tr:hover{ background: var(--surface-2); }
-.ledger td{
-  padding: 11px 18px;
-  font-size: 13.5px;
-  vertical-align: middle;
-}
-.ledger td.date{ color: var(--ink-faint); font-family:'IBM Plex Mono', monospace; font-size:12.5px; white-space:nowrap; }
-.ledger td.amount{
-  font-family:'IBM Plex Mono', monospace;
-  text-align:right;
-  color: var(--danger);
-  font-variant-numeric: tabular-nums;
-  white-space:nowrap;
-}
-.ledger td.equiv{
-  font-family:'IBM Plex Mono', monospace;
-  text-align:right;
-  color: var(--ink-faint);
-  font-variant-numeric: tabular-nums;
-  white-space:nowrap;
-  border-left: 1px dashed var(--rule-soft);
-}
-.pill{
-  display:inline-block;
-  font-size: 11px;
-  padding: 2px 8px;
-  border-radius: 20px;
-  border: 1px solid var(--sage);
-  color: var(--sage);
-}
-.pill.freq{
-  border-color: var(--brass-dim);
-  color: var(--brass-bright);
-}
-.row-actions{ display:flex; gap:6px; justify-content:flex-end; }
-.icon-btn{
-  background: transparent;
-  border: none;
-  color: var(--ink-faint);
-  cursor: pointer;
-  font-size: 13px;
-  padding: 3px 5px;
-}
-.icon-btn:hover{ color: var(--ink); }
 
 .empty{
   padding: 40px 18px;
@@ -249,9 +164,114 @@
 }
 .empty b{ color: var(--ink-dim); }
 
-.breakdown-list{ padding: 16px 18px; display:flex; flex-direction:column; gap:10px; }
-.b-row{ display:grid; grid-template-columns: 110px 1fr 70px; align-items:center; gap:10px; }
-.b-row .name{ font-size: 12.5px; color: var(--ink-dim); }
-.b-row .bar-track{ background: var(--surface-2); border-radius: 20px; height: 7px; overflow:hidden; }
-.b-row .bar-fill{ height:100%; background: linear-gradient(90deg, var(--danger), #D98476); }
-.b-row .pct{ font-family:'IBM Plex Mono', monospace; font-size:12px; text-align:right; color: var(--ink-faint); }
+/* ---------- goal cards ---------- */
+.goal-list{
+  display:flex;
+  flex-direction:column;
+  gap: 2px;
+}
+.goal-card{
+  padding: 16px 18px;
+  border-bottom: 1px dashed var(--rule-soft);
+  display:flex;
+  flex-direction:column;
+  gap: 10px;
+}
+.goal-card:last-child{ border-bottom:none; }
+
+.goal-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.goal-name{
+  font-family:'Fraunces', serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.goal-range{
+  font-size: 11.5px;
+  color: var(--ink-faint);
+  font-family:'IBM Plex Mono', monospace;
+}
+.goal-status{
+  display:inline-block;
+  font-size: 10.5px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 20px;
+  border: 1px solid var(--sage);
+  color: var(--sage);
+}
+.goal-status.achieved{ border-color: var(--good); color: var(--good); }
+.goal-status.expired{ border-color: var(--danger); color: var(--danger); }
+.goal-status.active{ border-color: var(--brass-dim); color: var(--brass-bright); }
+
+.goal-progress-track{
+  background: var(--surface-2);
+  border-radius: 20px;
+  height: 12px;
+  overflow:hidden;
+  border: 1px solid var(--rule-soft);
+}
+.goal-progress-fill{
+  height:100%;
+  background: linear-gradient(90deg, var(--brass-dim), var(--brass-bright));
+  transition: width .3s ease;
+}
+.goal-progress-fill.achieved{ background: linear-gradient(90deg, #4E6E5C, var(--good)); }
+.goal-progress-fill.behind{ background: linear-gradient(90deg, #6E3B33, var(--danger)); }
+
+.goal-stats{
+  display:flex;
+  justify-content:space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 12.5px;
+}
+.goal-stats .amounts{
+  font-family:'IBM Plex Mono', monospace;
+  color: var(--ink-dim);
+}
+.goal-stats .amounts b{ color: var(--brass-bright); }
+.goal-stats .time-left{ color: var(--ink-faint); }
+.goal-stats .time-left.urgent{ color: var(--danger); }
+
+.goal-actions{
+  display:flex;
+  align-items:center;
+  gap: 6px;
+  justify-content:flex-end;
+}
+.contribute-row{
+  display:flex;
+  gap: 8px;
+  align-items:center;
+}
+.contribute-row .contribute-amount{
+  flex: 1;
+  background: var(--surface-2);
+  border: 1px solid var(--rule);
+  color: var(--ink);
+  padding: 7px 10px;
+  border-radius: var(--radius);
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 13px;
+}
+.contribute-row .contribute-amount:focus{
+  outline: none;
+  border-color: var(--brass);
+}
+.icon-btn{
+  background: transparent;
+  border: none;
+  color: var(--ink-faint);
+  cursor: pointer;
+  font-size: 13px;
+  padding: 3px 5px;
+}
+.icon-btn:hover{ color: var(--ink); }

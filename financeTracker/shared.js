@@ -326,8 +326,11 @@ const Auth = (() => {
 // signed amount helper: income is positive, future expense-type txns
 // can be negative so the running balance stays generalized across modules
 function signedAmount(tx){
+  if(tx.type === 'goal') return 0; // goals track a target, not money in/out — never affects the balance
   const n = Number(tx.amount) || 0;
-  return tx.type === 'expense' ? -Math.abs(n) : Math.abs(n);
+  if(tx.type === 'expense') return -Math.abs(n);
+  if(tx.type === 'contribution') return -Math.abs(n); // money manually set aside toward a goal leaves the general balance
+  return Math.abs(n); // income
 }
 
 function fmtMoney(n){
