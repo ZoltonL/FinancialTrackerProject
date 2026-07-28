@@ -54,9 +54,11 @@ async function boot(){
   const qs = '?user=' + encodeURIComponent(username);
   document.getElementById('link-income').href = 'home.html' + qs;
   document.getElementById('link-expenses').href = 'expenses.html' + qs;
+  document.getElementById('link-goals').href = 'goals.html' + qs;
   document.getElementById('link-history').href = 'history.html' + qs;
   document.getElementById('nav-income').href = 'home.html' + qs;
   document.getElementById('nav-expenses').href = 'expenses.html' + qs;
+  document.getElementById('nav-goals').href = 'goals.html' + qs;
   document.getElementById('nav-history').href = 'history.html' + qs;
 
   await Store.loadForAccount(username);
@@ -65,11 +67,14 @@ async function boot(){
   const income = Store.byType('income').reduce((s, t) => s + (Number(t.amount) || 0), 0);
   const expenses = Store.byType('expense').reduce((s, t) => s + monthlyEquivalent(t), 0);
   const historyCount = History.all().length;
+  const goalsCount = Store.byType('goal').length;
 
   document.getElementById('income-figure').textContent =
     fmtMoney(income) + ' total';
   document.getElementById('expenses-figure').textContent =
     fmtMoney(expenses) + ' / mo';
+  document.getElementById('goals-figure').textContent =
+    goalsCount + (goalsCount === 1 ? ' goal set' : ' goals set');
   document.getElementById('history-figure').textContent =
     historyCount + (historyCount === 1 ? ' entry logged' : ' entries logged');
 }

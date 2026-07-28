@@ -15,17 +15,21 @@ const FREQUENCIES = [
   { id: 'weekly',  label: 'Weekly'  },
   { id: 'monthly', label: 'Monthly' },
   { id: 'yearly',  label: 'Yearly'  },
+  { id: 'onetime', label: 'One-Time' },
 ];
 
-let freqFilter = 'all'; // 'all' | 'weekly' | 'monthly' | 'yearly'
+let freqFilter = 'all'; // 'all' | 'weekly' | 'monthly' | 'yearly' | 'onetime'
 let editingId = null; // id of the expense currently being edited, or null
 
 // Converts any frequency to a monthly-equivalent figure, so weekly and
-// yearly expenses can be compared/summed on the same footing.
+// yearly expenses can be compared/summed on the same footing. One-time
+// expenses aren't recurring, so they don't contribute to this at all —
+// they're tracked separately in their own "One-Time Total" card instead.
 function monthlyEquivalent(tx){
   const amt = Number(tx.amount) || 0;
   if(tx.frequency === 'weekly') return amt * 52 / 12;
   if(tx.frequency === 'yearly') return amt / 12;
+  if(tx.frequency === 'onetime') return 0;
   return amt; // monthly
 }
 
@@ -42,7 +46,7 @@ function renderBalance(){
 function renderExpenses(){
   const root = document.getElementById('view-root');
   const all = Store.byType('expense');
-  const totalsByFreq = { weekly: 0, monthly: 0, yearly: 0 };
+  const totalsByFreq = { weekly: 0, monthly: 0, yearly: 0, onetime: 0 };
   all.forEach(t => { totalsByFreq[t.frequency] = (totalsByFreq[t.frequency] || 0) + Number(t.amount || 0); });
   const combinedMonthly = all.reduce((s, t) => s + monthlyEquivalent(t), 0);
 
@@ -61,6 +65,7 @@ function renderExpenses(){
       <div class="card"><div class="k">Weekly Total</div><div class="v bad">${fmtMoney(totalsByFreq.weekly)}</div></div>
       <div class="card"><div class="k">Monthly Total</div><div class="v bad">${fmtMoney(totalsByFreq.monthly)}</div></div>
       <div class="card"><div class="k">Yearly Total</div><div class="v bad">${fmtMoney(totalsByFreq.yearly)}</div></div>
+      <div class="card"><div class="k">One-Time Total</div><div class="v bad">${fmtMoney(totalsByFreq.onetime)}</div></div>
       <div class="card"><div class="k">Combined / Month</div><div class="v bad">${fmtMoney(combinedMonthly)}</div></div>
     </div>
 
@@ -146,7 +151,7 @@ function renderExpenses(){
         <td><span class="pill">${t.category}</span></td>
         <td><span class="pill freq">${freqLabel(t.frequency)}</span></td>
         <td class="amount">-${fmtMoney(Number(t.amount)).replace('$','$')}</td>
-        <td class="equiv">${fmtMoney(monthlyEquivalent(t))}</td>
+        <td class="equiv">${t.frequency === 'onetime' ? '—' : fmtMoney(monthlyEquivalent(t))}</td>
         <td>
           <div class="row-actions">
             <button class="icon-btn" data-action="edit" data-id="${t.id}" title="Edit">✎</button>
@@ -285,6 +290,7 @@ async function boot(){
   const qs = '?user=' + encodeURIComponent(username);
   document.getElementById('nav-menu').href = 'menu.html' + qs;
   document.getElementById('nav-income').href = 'home.html' + qs;
+  document.getElementById('nav-goals').href = 'goals.html' + qs;
   document.getElementById('nav-history').href = 'history.html' + qs;
 
   await Store.loadForAccount(username);
